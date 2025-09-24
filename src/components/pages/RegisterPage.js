@@ -7,8 +7,12 @@ import Button from "../Button";
 import Link from "next/link";
 import HorizontalRule from "../HorizontalRule";
 import styles from "./RegisterPage.module.css";
+import { useRouter } from "next/navigation";
 
 function RegisterPage() {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
   const [values, setValues] = useState({
     name: "",
     email: "",
@@ -16,16 +20,58 @@ function RegisterPage() {
     passwordRepeat: "",
   });
 
-  function handleChange(e) {
-    const { name, value } = e.target;
-    setValues((prevValues) => ({
-      ...prevValues,
-      [name]: value,
-    }));
+  const [errors, setErrors] = useState({});
+
+  function validateField(name, value) {
+    switch (name) {
+      case "name":
+        if (!value.trim()) return "이름을 입력해주세요.";
+        if (value.length < 2) return "이름은 2글자 이상이어야 합니다.";
+        break;
+      case "email":
+        if (!value.trim()) return "이메일을 입력해주세요.";
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
+          return "올바른 이메일 형식이 아닙니다.";
+        break;
+      case "password":
+        if (value.length < 4) return "비밀번호는 4자 이상이어야 합니다.";
+        break;
+      case "passwordRepeat":
+        if (value !== values.password) return "비밀번호가 일치하지 않습니다.";
+        break;
+      default:
+        break;
+    }
+    return "";
   }
 
+  function handleChange(e) {
+    const { name, value } = e.target;
+    setValues((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: validateField(name, value) }));
+  }
   async function handleSubmit(e) {
     e.preventDefault();
+    setError("");
+    setIsLoading(true);
+    try {
+      await fetch(`https://learn.codeit.kr/api/link-service/users`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: values.name,
+          email: values.email,
+          password: values.password,
+        }),
+      });
+
+      alert("회원가입 성공");
+      router.push("/login");
+    } catch (err) {
+      setError(err.message || "문제가 발생했습니다. 회원가입에 실패했습니다.");
+    } finally {
+      setIsLoading(false);
+    }
 
     // TODO: 회원가입 처리
     // 1. fetch 를 사용하여 회원가입 요청을 보냅니다.
@@ -62,6 +108,7 @@ function RegisterPage() {
           value={values.name}
           onChange={handleChange}
         />
+        {errors.name && <div className={styles.Error}>{errors.name}</div>}
         <Label className={styles.Label} htmlFor="email">
           이메일
         </Label>
@@ -74,9 +121,11 @@ function RegisterPage() {
           value={values.email}
           onChange={handleChange}
         />
+        {errors.email && <div className={styles.Error}>{errors.email}</div>}
         <Label className={styles.Label} htmlFor="password">
           비밀번호
         </Label>
+
         <Input
           id="password"
           className={styles.Input}
@@ -86,6 +135,9 @@ function RegisterPage() {
           value={values.password}
           onChange={handleChange}
         />
+        {errors.password && (
+          <div className={styles.Error}>{errors.password}</div>
+        )}
         <Label className={styles.Label} htmlFor="passwordRepeat">
           비밀번호 확인
         </Label>
@@ -98,7 +150,18 @@ function RegisterPage() {
           value={values.passwordRepeat}
           onChange={handleChange}
         />
-        <Button className={styles.Button}>회원가입</Button>
+        {errors.passwordRepeat && (
+          <div className={styles.Error}>{errors.passwordRepeat}</div>
+        )}
+        {error && (
+          <div className={styles.Error} role="alert" aria-live="polite">
+            {error}
+          </div>
+        )}
+        <Button className={styles.Button}>
+          {""}
+          {isLoading ? "회원가입 중..." : "회원가입"}
+        </Button>
         <div>
           이미 회원이신가요? <Link href="/login">로그인하기</Link>
         </div>
