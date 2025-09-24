@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./MyPage.module.css";
+import { userService } from "@/lib/userService";
 
 function MyPage() {
   const [user, setUser] = useState(null);
