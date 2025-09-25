@@ -8,6 +8,7 @@ import HorizontalRule from "../HorizontalRule";
 import Link from "next/link";
 import styles from "./LoginPage.module.css";
 import { useRouter } from "next/navigation";
+import { authService } from "@/lib/authService";
 
 function LoginPage() {
   const router = useRouter();
@@ -38,16 +39,7 @@ function LoginPage() {
 
     setIsLoading(true);
     try {
-      await fetch(`https://learn.codeit.kr/api/link-service/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: values.email,
-          password: values.password,
-        }),
-        credentials: "include",
-      });
-
+      await authService.login(values.email, values.password);
       alert("로그인 시도 성공");
       router.push("/me");
     } catch (err) {

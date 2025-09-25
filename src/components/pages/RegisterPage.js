@@ -8,6 +8,7 @@ import Link from "next/link";
 import HorizontalRule from "../HorizontalRule";
 import styles from "./RegisterPage.module.css";
 import { useRouter } from "next/navigation";
+import { authService } from "@/lib/authService";
 
 function RegisterPage() {
   const router = useRouter();
@@ -55,15 +56,7 @@ function RegisterPage() {
     setError("");
     setIsLoading(true);
     try {
-      await fetch(`https://learn.codeit.kr/api/link-service/users`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: values.name,
-          email: values.email,
-          password: values.password,
-        }),
-      });
+      await authService.register(values.name, values.email, values.password);
 
       alert("회원가입 성공");
       router.push("/login");
