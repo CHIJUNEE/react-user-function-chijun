@@ -8,16 +8,18 @@ import HorizontalRule from "../HorizontalRule";
 import Link from "next/link";
 import styles from "./LoginPage.module.css";
 import { useRouter } from "next/navigation";
-import { authService } from "@/lib/authService";
-
+import { useAuth } from "@/providers/AuthProvider";
 function LoginPage() {
   const router = useRouter();
+  const { login } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+
   const [values, setValues] = useState({
     email: "",
     password: "",
   });
+
+  const [error, setError] = useState(null);
 
   function handleChange(e) {
     const { name, value } = e.target;
@@ -39,7 +41,7 @@ function LoginPage() {
 
     setIsLoading(true);
     try {
-      await authService.login(values.email, values.password);
+      await login(values.email, values.password);
       alert("로그인 시도 성공");
       router.push("/me");
     } catch (err) {

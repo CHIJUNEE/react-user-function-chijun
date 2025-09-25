@@ -8,9 +8,10 @@ import Link from "next/link";
 import HorizontalRule from "../HorizontalRule";
 import styles from "./RegisterPage.module.css";
 import { useRouter } from "next/navigation";
-import { authService } from "@/lib/authService";
+import { useAuth } from "@/providers/AuthProvider";
 
 function RegisterPage() {
+  const { register } = useAuth();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -56,7 +57,7 @@ function RegisterPage() {
     setError("");
     setIsLoading(true);
     try {
-      await authService.register(values.name, values.email, values.password);
+      await register(values.name, values.email, values.password);
 
       alert("회원가입 성공");
       router.push("/login");

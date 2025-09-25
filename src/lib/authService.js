@@ -13,6 +13,7 @@ export const authService = {
   register: (name, email, password) => {
     return defaultFetch("/users", {
       method: "POST",
+
       body: JSON.stringify({
         name,
         email,
@@ -20,4 +21,10 @@ export const authService = {
       }),
     });
   },
+
+  // 로그아웃
+  logout: () =>
+    cookieFetch("/auth/logout", {
+      method: "POST",
+    }),
 };
